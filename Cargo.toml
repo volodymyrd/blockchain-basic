@@ -1,0 +1,42 @@
+[workspace.package]
+version = "0.0.0"
+edition = "2021"
+rust-version = "1.81.0"
+repository = "https://github.com/volodymyrd/blockchain-basic"
+license = "MIT OR Apache-2.0"
+
+[workspace]
+resolver = "2"
+members = ["chain/chain", "helper/helper", "helper/helper-macro", "main", "model"]
+
+[workspace.dependencies]
+# internal deps
+helper = { path = "helper/helper" }
+helper-macro = { path = "helper/helper-macro" }
+model = { path = "model" }
+
+# external deps
+arbitrary = { version = "1.2.3", features = ["derive"] }
+base64 = "0.21"
+bolero = { version = "0.10.0", git = "https://github.com/Ekleog-NEAR/bolero", rev = "c37993bd70dcf5b1778b03daf29f686225e9a504", features = [
+    "arbitrary",
+] }
+borsh = { version = "1.0.0", features = ["derive", "rc"] }
+bs58 = "0.4"
+derive_more = { version = "1", features = ["full"] }
+ed25519-dalek = { version = "2.1.1", default-features = false }
+primitive-types = { version = "0.10", default-features = false }
+prometheus = "0.13.1"
+rand = "0.8.5"
+secp256k1 = { version = "0.27.0", default-features = false }
+serde = { version = "1.0.136", features = ["alloc", "derive", "rc"] }
+serde_ignored = "0.1"
+serde_json = "1.0.68"
+serde_repr = "0.1.8"
+serde_with = { version = "3.0", features = ["base64"] }
+serde_yaml = "0.9"
+sha2 = "0.10"
+time = { version = "0.3.9", default-features = false }
+tokio = { version = "1.28", default-features = false }
+thiserror = "1.0.30"
+tracing = { version = "0.1.40", features = ["std"] }
