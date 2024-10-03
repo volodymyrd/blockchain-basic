@@ -1,4 +1,4 @@
-use crate::signature::{KeyType, SecretKey};
+use crate::signature::{KeyType, SecretKey, Signature};
 use crate::validator_signer::ValidatorSigner;
 
 // Helper function that creates a new signer for a given account, that uses the account name as seed.
@@ -29,6 +29,17 @@ impl SecretKey {
                     keypair.to_keypair_bytes(),
                 ))
             }
+        }
+    }
+}
+
+const SIG: [u8; ed25519_dalek::SIGNATURE_LENGTH] = [0u8; ed25519_dalek::SIGNATURE_LENGTH];
+
+impl Signature {
+    /// Empty signature that doesn't correspond to anything.
+    pub fn empty(key_type: KeyType) -> Self {
+        match key_type {
+            KeyType::ED25519 => Signature::ED25519(ed25519_dalek::Signature::from_bytes(&SIG)),
         }
     }
 }

@@ -9,6 +9,7 @@ use crate::types::{
 };
 use borsh::{BorshDeserialize, BorshSerialize};
 use helper_macro::ProtocolSchema;
+use crate::validator_signer::ValidatorSigner;
 
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq, Default)]
 pub struct GenesisId {
@@ -227,6 +228,20 @@ pub enum ApprovalInner {
     Skip(BlockHeight),
 }
 
+impl ApprovalInner {
+    pub fn new(
+        parent_hash: &CryptoHash,
+        parent_height: BlockHeight,
+        target_height: BlockHeight,
+    ) -> Self {
+        if target_height == parent_height + 1 {
+            ApprovalInner::Endorsement(*parent_hash)
+        } else {
+            ApprovalInner::Skip(parent_height)
+        }
+    }
+}
+
 /// Block approval by other block producers with a signature
 #[derive(
     BorshSerialize, BorshDeserialize, serde::Serialize, Debug, Clone, PartialEq, Eq, ProtocolSchema,
@@ -236,4 +251,21 @@ pub struct Approval {
     pub target_height: BlockHeight,
     pub signature: Signature,
     pub account_id: AccountId,
+}
+
+impl Approval {
+    pub fn new(
+        parent_hash: CryptoHash,
+        parent_height: BlockHeight,
+        target_height: BlockHeight,
+        signer: &ValidatorSigner,
+    ) -> Self {
+        let inner = ApprovalInner::new(&parent_hash, parent_height, target_height);
+        let signature = signer.sign_approval(&inner, target_height);
+        Approval { inner, target_height, signature, account_id: signer.validator_id().clone() }
+    }
+
+    pub fn get_data_for_sig(inner: &ApprovalInner, target_height: BlockHeight) -> Vec<u8> {
+        [borsh::to_vec(&inner).unwrap().as_ref(), target_height.to_le_bytes().as_ref()].concat()
+    }
 }
